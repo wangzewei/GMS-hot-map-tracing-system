@@ -13,6 +13,10 @@ namespace GMS
         public Form1()
         {
             InitializeComponent();
+            Commend c1 = new cmdtest("a,B,C");
+            //c1.Process();
+            //NetStream n1 = new NetStream();
+            //n1.Server();
         }
     }
 }
