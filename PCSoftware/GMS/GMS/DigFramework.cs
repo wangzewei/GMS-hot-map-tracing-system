@@ -6,5 +6,6 @@ namespace GMS
 {
     class DigFramework
     {
+
     }
 }

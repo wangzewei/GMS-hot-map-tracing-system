@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DigFramework.cs" />
     <Compile Include="MessageModel\CmdQueue.cs" />
     <Compile Include="MessageModel\cmdtest.cs" />
     <Compile Include="MessageModel\Commend.cs" />

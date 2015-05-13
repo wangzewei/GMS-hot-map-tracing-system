@@ -6,8 +6,12 @@ namespace GMS
 {
     abstract public class Commend :IProcess
     {
-        public Commend(string MsgContext);
-        public bool Process();
-        protected string[] cmdmsg;
+        public Commend(){}
+        public bool Process() { return false; }
+        public void appendcontext(string[] contex)
+        {
+            cmdmsg.AddRange(contex);
+        }
+        public List<string> cmdmsg;
     }
 }
