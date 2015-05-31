@@ -4,10 +4,10 @@ using System.Text;
 
 namespace GMS
 {
-    public class cmdtest :  Commend
+    public class cmdtest : Commend 
     {      
 
-        public new bool Process()
+        public override bool Process()
         {
             System.Windows.Forms.MessageBox.Show(string.Format("{1}",cmdmsg));
             return true;

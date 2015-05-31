@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Configuration;
 
 namespace GMS
 {
@@ -19,18 +19,27 @@ namespace GMS
         private Thread listenThread;
         private int connectedClients = 0;
         private delegate void WriteMessageDelegate(string msg);
-        static readonly private NetStream instance = new NetStream();
+        private static NetStream instance = null;
+        private static CmdQueue queue = CmdQueue.getinstance();
+        private Commend c = null;
+        string msg;
+        private ASCIIEncoding encoder = new ASCIIEncoding();
+        Main f1;
         #endregion
 
         #region 基本服务
-        public NetStream getinstance()
+        static public NetStream getinstance(Main f)
         {
+            if (instance == null)
+                instance = new NetStream(f);
+            
             return instance;
         }
 
-        public NetStream()
+        NetStream(Main f)
         {
-            string IP = System.Configuration.ConfigurationManager.AppSettings["ServerAddr"].ToString();
+            f1 = f;
+            string IP = ConfigurationManager.AppSettings["ServerAddr"].ToString();
             string PORT = System.Configuration.ConfigurationManager.AppSettings["ServerPort"].ToString();
             this.tcpListener = new TcpListener(IPAddress.Parse(IP), int.Parse(PORT));
             this.listenThread = new Thread(new ThreadStart(ListenForClients));
@@ -63,8 +72,8 @@ namespace GMS
 
             while (true)
             {
+                
                 bytesRead = 0;
-
                 try
                 {
                     bytesRead = clientStream.Read(message, 0, 4096);
@@ -81,33 +90,44 @@ namespace GMS
                     break;
                 }
 
-                ASCIIEncoding encoder = new ASCIIEncoding();
-
-                string msg = encoder.GetString(message, 0, bytesRead);
-                //WriteMessage(msg);
+                msg = encoder.GetString(message, 0, bytesRead);
+                WriteMessage(msg);
                 
-                // using cmd factory to create subclass cmd and add it to queue
-                CommendFactory.CommendGenerator(msg);
-
-                Echo(msg, encoder, clientStream);
+                if(msg.Length!=0)
+                    ThreadPool.QueueUserWorkItem(this.dowork);
+                Echo(msg,encoder,clientStream);
             }
 
             tcpClient.Close();
         }
+
+        private void dowork(object state)
+        {
+            
+            c = CommendFactory.CommendGenerator(msg.Trim());
+            if (c != null)
+            {
+               // c.GetType();
+                c.Process();
+                    //queue.AddCmd(c);
+            }
+        }
+
         #endregion
 
-        //private void WriteMessage(string msg)
-        //{
-        //    if (this.rtbServer.InvokeRequired)
-        //    {
-        //        WriteMessageDelegate d = new WriteMessageDelegate(WriteMessage);
-        //        this.rtbServer.Invoke(d, new object[] { msg });
-        //    }
-        //    else
-        //    {
-        //        this.rtbServer.AppendText(msg + Environment.NewLine);
-        //    }
-        //}
+        private void WriteMessage(string msg)
+        {
+            if (f1.textBox2.InvokeRequired)
+            {
+                WriteMessageDelegate d = new WriteMessageDelegate(WriteMessage);
+                f1.textBox2.Invoke(d, new object[] { msg });
+            }
+            else
+            {
+                f1.textBox2.AppendText(msg + Environment.NewLine);
+            }
+        }
+        
 
         #region 特殊服务
         private void Echo(string msg, ASCIIEncoding encoder, NetworkStream clientStream)
