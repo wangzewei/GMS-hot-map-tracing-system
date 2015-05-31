@@ -26,6 +26,6 @@
         android:layout_alignBottom="@+id/button1"
         android:layout_alignParentRight="true"
         android:layout_marginRight="20dp"
-        android:text="@string/btn2" />"
+        android:text="@string/btn2" />
 
 </RelativeLayout>

@@ -6,6 +6,5 @@
     <string name="hello_world">Hello world!</string>
     <string name="btn1">定位实例</string>
     <string name="btn2">拉取推送</string>
-    <string name="btn3">测试方法</string>
 
 </resources>
